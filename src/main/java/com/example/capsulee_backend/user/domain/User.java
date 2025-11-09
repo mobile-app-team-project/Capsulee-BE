@@ -25,6 +25,8 @@ public class User {
     private String password;
     private String username;
 
+    private boolean isOkAlarm; // 사용자가 알람을 받는지 여부
+
     @OneToMany(mappedBy = "sender")
     private List<FriendShip> sentFriendShips = new ArrayList<>(); // 사용자가 보낸 친구 신청
 
