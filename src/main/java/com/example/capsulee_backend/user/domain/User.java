@@ -43,9 +43,10 @@ public class User {
     private List<RecipientConditions> recipientConditions = new ArrayList<>(); // 사용자가 만족해야할 캡슐 조건
 
     @Builder
-    public User (String loginID, String password, String username) {
+    public User (String loginID, String password, String username, boolean isOkAlarm) {
         this.loginID = loginID;
         this.password = password;
         this.username = username;
+        this.isOkAlarm = isOkAlarm;
     }
 }
