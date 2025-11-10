@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/capsulee?useSSL=false&serverTimezone=Asia/Seoul
+    username: root # 기본 사용자 이름
+    password: 0921 # 기본 비밀번호
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: create
