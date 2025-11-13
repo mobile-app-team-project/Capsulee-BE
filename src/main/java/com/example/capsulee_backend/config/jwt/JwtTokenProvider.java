@@ -67,4 +67,31 @@ public class JwtTokenProvider {
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
+
+    // 토큰 유효성 확인
+    public boolean validateToken(String token) {
+        try {
+            getClaimsFromToken(token); // 유효성 검사를 위해 파싱 시도
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // token으로 claims 받아옴
+    public Claims getClaimsFromToken(String token) {
+        // JWT 파서 생성
+        // parserBuilder()로 JWT 파서를 만들기 위한 빌더 객체를 얻는다.
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey) // JWT 서명 검증을 위해 SecretKey 설정
+                .build() // 빌더를 통해 실제 파서(parser) 객체 생성
+                .parseClaimsJwt(token) // 토큰을 파싱해서 Claims(JWT payload)만 추출
+                .getBody(); // 파싱된 토큰에서 body(클레임 값들)을 가져온다
+        return claims;
+    }
+
+    public String getLoginIDFromToken(String token) {
+        Claims claims = getClaimsFromToken(token);
+        return claims.get("loginID", String.class);
+    }
 }
