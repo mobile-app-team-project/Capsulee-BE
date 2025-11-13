@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
@@ -24,5 +25,26 @@ public class JwtTokenProvider {
     private void init() {
         // JWT 서명용 SecretKey 생성
         this.secretKey = Keys.hmacShaKeyFor(jwtSecret.getBytes());
+    }
+
+    // Access Token 발급
+    public String generateAccessToken(String loginID) {
+        // 현재 시간
+        final Date now = new Date();
+        // 만료 시간
+        Date expiry = new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION_TIME);
+
+        // JWT의 정보
+        final Claims claims = Jwts.claims()
+                .setIssuedAt(now)
+                .setExpiration(expiry); // 만료 시간
+        claims.put("loginID", loginID); // loginID로 인증
+
+        return Jwts.builder()
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE) // 헤더 typ을 JWT로 설정
+                .setSubject("ACCESS_TOKEN") // 토큰의 용도 표시
+                .setClaims(claims) // 클레임 지정
+                .signWith(secretKey, SignatureAlgorithm.HS256) // 서명
+                .compact();
     }
 }
