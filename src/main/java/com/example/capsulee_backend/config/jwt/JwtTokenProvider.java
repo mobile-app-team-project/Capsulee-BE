@@ -47,4 +47,24 @@ public class JwtTokenProvider {
                 .signWith(secretKey, SignatureAlgorithm.HS256) // 서명
                 .compact();
     }
+
+    // Refresh Token 발급
+    public String generateRefreshToken(String loginID) {
+        // 현재 시간
+        final Date now = new Date();
+        // 만료 시간
+        Date expiry = new Date(now.getTime() + REFRESH_TOKEN_EXPIRATION_TIME);
+
+        final Claims claims = Jwts.claims()
+                .setIssuedAt(now)
+                .setExpiration(expiry);
+        claims.put("loginID", loginID);
+
+        return Jwts.builder()
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .setSubject("REFRESH_TOKEN")
+                .setClaims(claims)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
 }
