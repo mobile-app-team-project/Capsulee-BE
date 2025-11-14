@@ -1,14 +1,11 @@
 package com.example.capsulee_backend.capsule.domain;
 
-import com.example.capsulee_backend.user.domain.FriendShip;
 import com.example.capsulee_backend.user.domain.User;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -34,5 +31,5 @@ public class Capsule {
     private List<Reception> receptions; // 이 캡슐이 수신된 정보
 
     @OneToMany(mappedBy = "capsule")
-    private List<Condition> conditions; // 이 캡슐이 열리는 데에 필요한 조건
+    private List<Conditions> condition; // 이 캡슐이 열리는 데에 필요한 조건
 }
