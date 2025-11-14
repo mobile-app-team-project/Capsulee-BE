@@ -49,4 +49,10 @@ public class UserService {
 
         return new LoginResponseDto(accessToken, refreshToken);
     }
+
+    public User getUserByLoginID(String loginID) {
+        User user = userRepository.findByLoginID(loginID)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 ID입니다."));
+        return user;
+    }
 }
