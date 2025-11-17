@@ -129,4 +129,11 @@ public class FriendShipService {
 
         return responseDtoList;
     }
+
+    @Transactional
+    public void deleteFriendShip(Long friendshipId) {
+        FriendShip friendShip = friendShipRepository.findById(friendshipId)
+                .orElseThrow(() -> new RuntimeException("해당 친구 관계가 존재하지 않습니다."));
+        friendShipRepository.delete(friendShip);
+    }
 }
