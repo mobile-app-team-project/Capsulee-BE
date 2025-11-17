@@ -7,8 +7,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class FriendShipResponseDto {
-    public Long friendShipId;
-    public FriendRequest status;
-    public String senderLoginId;
-    public String receiverLoginId;
+    private Long friendShipId;
+    private FriendRequest status;
+    private String senderLoginId;
+    private String receiverLoginId;
 }
