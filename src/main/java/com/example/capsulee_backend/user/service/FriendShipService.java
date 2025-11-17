@@ -3,6 +3,7 @@ package com.example.capsulee_backend.user.service;
 import com.example.capsulee_backend.user.domain.FriendRequest;
 import com.example.capsulee_backend.user.domain.FriendShip;
 import com.example.capsulee_backend.user.domain.User;
+import com.example.capsulee_backend.user.dto.response.FriendRequestResponseDto;
 import com.example.capsulee_backend.user.repository.FriendShipRepository;
 import com.example.capsulee_backend.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -14,7 +15,7 @@ public class FriendShipService {
     private final UserRepository userRepository;
     private final FriendShipRepository friendShipRepository;
 
-    public void createFriendShip(String senderLoginID, String receiverLoginID) {
+    public FriendRequestResponseDto createFriendShip(String senderLoginID, String receiverLoginID) {
         User sender = userRepository.findByLoginID(senderLoginID)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
@@ -31,6 +32,12 @@ public class FriendShipService {
                 .receiver(receiver)
                 .status(FriendRequest.PENDING)
                 .build();
-        friendShipRepository.save(friendShip);
+        FriendShip saved = friendShipRepository.save(friendShip);
+
+        return new FriendRequestResponseDto(
+                saved.getId(),
+                saved.getStatus(),
+                saved.getSender().getLoginID(),
+                saved.getReceiver().getLoginID());
     }
 }
