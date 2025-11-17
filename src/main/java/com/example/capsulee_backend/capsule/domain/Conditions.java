@@ -10,7 +10,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Condition {
+public class Conditions {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "condition_id")

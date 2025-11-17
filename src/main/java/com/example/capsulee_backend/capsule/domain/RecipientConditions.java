@@ -20,7 +20,7 @@ public class RecipientConditions {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "condition_id")
-    private Condition condition;
+    private Conditions condition;
 
     private boolean isAccepted; // 사용자 캡슐조건 만족 여부
 }
