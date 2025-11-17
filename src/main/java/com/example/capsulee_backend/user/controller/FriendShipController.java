@@ -2,14 +2,12 @@ package com.example.capsulee_backend.user.controller;
 
 import com.example.capsulee_backend.config.jwt.PrincipalHandler;
 import com.example.capsulee_backend.user.dto.request.FriendShipRequestDto;
+import com.example.capsulee_backend.user.dto.request.FriendShipUpdateRequestDto;
 import com.example.capsulee_backend.user.dto.response.FriendShipResponseDto;
 import com.example.capsulee_backend.user.service.FriendShipService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,5 +27,10 @@ public class FriendShipController {
         );
 
         return ResponseEntity.ok(friendRequestResponseDto);
+    }
+
+    @PutMapping("/response")
+    public ResponseEntity<FriendShipResponseDto> updateFriendShip(@RequestBody FriendShipUpdateRequestDto friendShipUpdateRequestDto) {
+        return ResponseEntity.ok(friendShipService.updateFriendShip(friendShipUpdateRequestDto));
     }
 }
