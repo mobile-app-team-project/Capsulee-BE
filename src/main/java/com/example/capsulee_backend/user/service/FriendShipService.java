@@ -3,6 +3,8 @@ package com.example.capsulee_backend.user.service;
 import com.example.capsulee_backend.user.domain.FriendRequest;
 import com.example.capsulee_backend.user.domain.FriendShip;
 import com.example.capsulee_backend.user.domain.User;
+import com.example.capsulee_backend.user.dto.request.FriendShipRequestDto;
+import com.example.capsulee_backend.user.dto.request.FriendShipUpdateRequestDto;
 import com.example.capsulee_backend.user.dto.response.FriendShipResponseDto;
 import com.example.capsulee_backend.user.repository.FriendShipRepository;
 import com.example.capsulee_backend.user.repository.UserRepository;
@@ -43,5 +45,23 @@ public class FriendShipService {
                 saved.getStatus(),
                 saved.getSender().getLoginID(),
                 saved.getReceiver().getLoginID());
+    }
+
+    public FriendShipResponseDto updateFriendShip(FriendShipUpdateRequestDto requestDto) {
+        User sender = userRepository.findByLoginID(requestDto.getSenderLoginId())
+                .orElseThrow(() -> new IllegalArgumentException("발신자가 존재하지 않는 유저입니다."));
+
+        User receiver = userRepository.findByLoginID(requestDto.getReceiverLoginId())
+                .orElseThrow(() -> new IllegalArgumentException("수신자가 존재하지 않는 유저입니다."));
+
+        FriendShip friendShip = friendShipRepository.findBySenderAndReceiver(sender, receiver);
+
+        // 상태 변경
+        FriendRequest status = requestDto.getFriendRequest();
+        friendShip.update(status);
+
+        FriendShipResponseDto responseDto = new FriendShipResponseDto(
+                friendShip.getId(), status, sender.getLoginID(), receiver.getLoginID());
+        return responseDto;
     }
 }

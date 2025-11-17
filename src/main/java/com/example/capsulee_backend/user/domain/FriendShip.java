@@ -30,4 +30,8 @@ public class FriendShip {
         this.receiver = receiver;
         this.status = status;
     }
+
+    public void update(FriendRequest status) {
+        this.status = status;
+    }
 }

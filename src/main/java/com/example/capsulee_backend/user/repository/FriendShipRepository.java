@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FriendShipRepository extends JpaRepository<FriendShip, Long> {
     public boolean existsBySenderAndReceiver(User sender, User receiver);
+    public FriendShip findBySenderAndReceiver(User sender, User receiver);
 }
