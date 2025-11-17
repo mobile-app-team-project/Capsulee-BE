@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class FriendShipUpdateRequestDto {
-    String senderLoginId;
-    String receiverLoginId;
-    FriendRequest friendRequest;
+    private String senderLoginId;
+    private String receiverLoginId;
+    private FriendRequest status;
 }

@@ -57,7 +57,7 @@ public class FriendShipService {
         FriendShip friendShip = friendShipRepository.findBySenderAndReceiver(sender, receiver);
 
         // 상태 변경
-        FriendRequest status = requestDto.getFriendRequest();
+        FriendRequest status = requestDto.getStatus();
         friendShip.update(status);
 
         FriendShipResponseDto responseDto = new FriendShipResponseDto(
