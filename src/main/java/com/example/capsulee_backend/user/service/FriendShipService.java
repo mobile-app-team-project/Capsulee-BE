@@ -5,6 +5,7 @@ import com.example.capsulee_backend.user.domain.FriendShip;
 import com.example.capsulee_backend.user.domain.User;
 import com.example.capsulee_backend.user.dto.request.FriendShipRequestDto;
 import com.example.capsulee_backend.user.dto.request.FriendShipUpdateRequestDto;
+import com.example.capsulee_backend.user.dto.response.FriendInfoResponseDto;
 import com.example.capsulee_backend.user.dto.response.FriendPendingResponseDto;
 import com.example.capsulee_backend.user.dto.response.FriendShipResponseDto;
 import com.example.capsulee_backend.user.repository.FriendShipRepository;
@@ -87,6 +88,42 @@ public class FriendShipService {
                 responseDtoList.add(friendPendingResponseDto);
             }
         }
+        return responseDtoList;
+    }
+
+    public List<FriendInfoResponseDto> getFriendList(String userLoginID) {
+        User user = userRepository.findByLoginID(userLoginID)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
+        // 친구 상태인 유저 리스트
+        List<FriendInfoResponseDto> responseDtoList = new ArrayList<>();
+
+        // 해당 유저가 친구 신청을 한 경우
+        List<FriendShip> sendFriendShip = friendShipRepository.findAllBySender(user);
+        for (FriendShip friendShip : sendFriendShip) {
+            if (friendShip.getStatus().equals(FriendRequest.ACCEPTED)) {
+                // 친구 요청을 accept한 경우에만 친구 상태
+                User friend = friendShip.getReceiver();
+                FriendInfoResponseDto friendInfoResponseDto = new FriendInfoResponseDto(
+                        friend.getId(), friend.getLoginID(), friend.getUsername()
+                );
+                responseDtoList.add(friendInfoResponseDto);
+            }
+        }
+
+        // 해당 유저가 친구 신청을 받은 경우
+        List<FriendShip> receiveFriendShip = friendShipRepository.findAllByReceiver(user);
+        for (FriendShip friendShip : receiveFriendShip) {
+            if (friendShip.getStatus().equals(FriendRequest.ACCEPTED)) {
+                // 친구 요청을 accept한 경우에만 친구 상태
+                User friend = friendShip.getSender();
+                FriendInfoResponseDto friendInfoResponseDto = new FriendInfoResponseDto(
+                        friend.getId(), friend.getLoginID(), friend.getUsername()
+                );
+                responseDtoList.add(friendInfoResponseDto);
+            }
+        }
+
         return responseDtoList;
     }
 }
