@@ -17,10 +17,10 @@ public class FriendShipService {
 
     public FriendRequestResponseDto createFriendShip(String senderLoginID, String receiverLoginID) {
         User sender = userRepository.findByLoginID(senderLoginID)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("발신자가 존재하지 않는 유저입니다."));
 
-        User receiver = userRepository.findByLoginID(senderLoginID)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+        User receiver = userRepository.findByLoginID(receiverLoginID)
+                .orElseThrow(() -> new IllegalArgumentException("수신자가 존재하지 않는 유저입니다."));
 
         if (friendShipRepository.existsBySenderAndReceiver(sender, receiver)) {
             throw new IllegalArgumentException("이미 친구 요청을 보냈습니다.");
