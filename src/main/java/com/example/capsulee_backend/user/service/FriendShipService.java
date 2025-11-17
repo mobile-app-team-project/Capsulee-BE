@@ -16,6 +16,10 @@ public class FriendShipService {
     private final FriendShipRepository friendShipRepository;
 
     public FriendRequestResponseDto createFriendShip(String senderLoginID, String receiverLoginID) {
+        if (senderLoginID.equals(receiverLoginID)) {
+            throw new IllegalArgumentException("본인에게 친구 요청을 할 수 없습니다.");
+        }
+
         User sender = userRepository.findByLoginID(senderLoginID)
                 .orElseThrow(() -> new IllegalArgumentException("발신자가 존재하지 않는 유저입니다."));
 
