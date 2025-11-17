@@ -10,6 +10,7 @@ import com.example.capsulee_backend.user.repository.FriendShipRepository;
 import com.example.capsulee_backend.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ public class FriendShipService {
     private final UserRepository userRepository;
     private final FriendShipRepository friendShipRepository;
 
+    @Transactional
     public FriendShipResponseDto createFriendShip(String senderLoginID, String receiverLoginID) {
         if (senderLoginID.equals(receiverLoginID)) {
             throw new IllegalArgumentException("본인에게 친구 요청을 할 수 없습니다.");
@@ -50,6 +52,7 @@ public class FriendShipService {
                 saved.getReceiver().getLoginID());
     }
 
+    @Transactional
     public FriendShipResponseDto updateFriendShip(FriendShipUpdateRequestDto requestDto) {
         User sender = userRepository.findByLoginID(requestDto.getSenderLoginId())
                 .orElseThrow(() -> new IllegalArgumentException("발신자가 존재하지 않는 유저입니다."));
@@ -64,10 +67,11 @@ public class FriendShipService {
         friendShip.update(status);
 
         FriendShipResponseDto responseDto = new FriendShipResponseDto(
-                friendShip.getId(), status, sender.getLoginID(), receiver.getLoginID());
+                friendShip.getId(), friendShip.getStatus(), sender.getLoginID(), receiver.getLoginID());
         return responseDto;
     }
 
+    @Transactional
     public List<FriendInfoResponseDto> getPendingList(String userLoginID) {
         User receiver = userRepository.findByLoginID(userLoginID)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
@@ -89,6 +93,7 @@ public class FriendShipService {
         return responseDtoList;
     }
 
+    @Transactional
     public List<FriendInfoResponseDto> getFriendList(String userLoginID) {
         User user = userRepository.findByLoginID(userLoginID)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
