@@ -58,4 +58,9 @@ public class FriendShipController {
 
         return ResponseEntity.ok(responseDtoList);
     }
+
+    @DeleteMapping("/{friendShipId}")
+    public void deleteFriend(@PathVariable Long friendShipId) {
+        friendShipService.deleteFriendShip(friendShipId);
+    }
 }
