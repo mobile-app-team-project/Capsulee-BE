@@ -1,6 +1,8 @@
 package com.example.capsulee_backend.user.controller;
 
 import com.example.capsulee_backend.config.jwt.PrincipalHandler;
+import com.example.capsulee_backend.user.domain.FriendRequest;
+import com.example.capsulee_backend.user.dto.request.FriendShipRequestDto;
 import com.example.capsulee_backend.user.dto.response.FriendRequestResponseDto;
 import com.example.capsulee_backend.user.service.FriendShipService;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +19,11 @@ public class FriendShipController {
     private final FriendShipService friendShipService;
 
     @PostMapping("/request")
-    public ResponseEntity<FriendRequestResponseDto> requestFriendShip(@RequestBody String receiverLoginId) {
+    public ResponseEntity<FriendRequestResponseDto> requestFriendShip(@RequestBody FriendShipRequestDto friendShipRequestDto) {
         // 토큰에서 내 정보 가져오기
         String senderLoginID = PrincipalHandler.getLoginIDFromPrincipal();
+
+        String receiverLoginId = friendShipRequestDto.getReceiverLoginId();
 
         FriendRequestResponseDto friendRequestResponseDto = friendShipService.createFriendShip(
                 senderLoginID, receiverLoginId
