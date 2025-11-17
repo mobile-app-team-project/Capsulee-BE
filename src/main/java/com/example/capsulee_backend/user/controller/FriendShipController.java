@@ -3,6 +3,7 @@ package com.example.capsulee_backend.user.controller;
 import com.example.capsulee_backend.config.jwt.PrincipalHandler;
 import com.example.capsulee_backend.user.dto.request.FriendShipRequestDto;
 import com.example.capsulee_backend.user.dto.request.FriendShipUpdateRequestDto;
+import com.example.capsulee_backend.user.dto.response.FriendInfoResponseDto;
 import com.example.capsulee_backend.user.dto.response.FriendPendingResponseDto;
 import com.example.capsulee_backend.user.dto.response.FriendShipResponseDto;
 import com.example.capsulee_backend.user.service.FriendShipService;
@@ -17,6 +18,17 @@ import java.util.List;
 @RequestMapping("/friends")
 public class FriendShipController {
     private final FriendShipService friendShipService;
+
+    @GetMapping("")
+    public ResponseEntity<List<FriendInfoResponseDto>> getAllFriends() {
+        // 토큰에서 내 정보 가져오기
+        String userLoginID = PrincipalHandler.getLoginIDFromPrincipal();;
+
+        // 해당 유저의 친구 리스트
+        List<FriendInfoResponseDto> responseDtoList = friendShipService.getFriendList(userLoginID);
+
+        return ResponseEntity.ok(responseDtoList);
+    }
 
     @PostMapping("/request")
     public ResponseEntity<FriendShipResponseDto> requestFriendShip(@RequestBody FriendShipRequestDto friendShipRequestDto) {
