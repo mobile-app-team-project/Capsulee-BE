@@ -3,10 +3,8 @@ package com.example.capsulee_backend.user.service;
 import com.example.capsulee_backend.user.domain.FriendRequest;
 import com.example.capsulee_backend.user.domain.FriendShip;
 import com.example.capsulee_backend.user.domain.User;
-import com.example.capsulee_backend.user.dto.request.FriendShipRequestDto;
 import com.example.capsulee_backend.user.dto.request.FriendShipUpdateRequestDto;
 import com.example.capsulee_backend.user.dto.response.FriendInfoResponseDto;
-import com.example.capsulee_backend.user.dto.response.FriendPendingResponseDto;
 import com.example.capsulee_backend.user.dto.response.FriendShipResponseDto;
 import com.example.capsulee_backend.user.repository.FriendShipRepository;
 import com.example.capsulee_backend.user.repository.UserRepository;
@@ -70,19 +68,19 @@ public class FriendShipService {
         return responseDto;
     }
 
-    public List<FriendPendingResponseDto> getPendingList(String userLoginID) {
+    public List<FriendInfoResponseDto> getPendingList(String userLoginID) {
         User receiver = userRepository.findByLoginID(userLoginID)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
         // 해당 유저가 받은 친구 요청 리스트
         List<FriendShip> friendShipList = friendShipRepository.findAllByReceiver(receiver);
 
-        List<FriendPendingResponseDto> responseDtoList = new ArrayList<>();
+        List<FriendInfoResponseDto> responseDtoList = new ArrayList<>();
         for (FriendShip friendShip : friendShipList) {
             if (friendShip.getStatus().equals(FriendRequest.PENDING)) {
                 // 친구 요청한 경우만 추가
                 User sender = friendShip.getSender();
-                FriendPendingResponseDto friendPendingResponseDto = new FriendPendingResponseDto(
+                FriendInfoResponseDto friendPendingResponseDto = new FriendInfoResponseDto(
                         friendShip.getId(), sender.getId(), sender.getLoginID(), sender.getUsername()
                 );
                 responseDtoList.add(friendPendingResponseDto);
@@ -105,7 +103,7 @@ public class FriendShipService {
                 // 친구 요청을 accept한 경우에만 친구 상태
                 User friend = friendShip.getReceiver();
                 FriendInfoResponseDto friendInfoResponseDto = new FriendInfoResponseDto(
-                        friend.getId(), friend.getLoginID(), friend.getUsername()
+                        friendShip.getId(), friend.getId(), friend.getLoginID(), friend.getUsername()
                 );
                 responseDtoList.add(friendInfoResponseDto);
             }
@@ -118,7 +116,7 @@ public class FriendShipService {
                 // 친구 요청을 accept한 경우에만 친구 상태
                 User friend = friendShip.getSender();
                 FriendInfoResponseDto friendInfoResponseDto = new FriendInfoResponseDto(
-                        friend.getId(), friend.getLoginID(), friend.getUsername()
+                        friendShip.getId(), friend.getId(), friend.getLoginID(), friend.getUsername()
                 );
                 responseDtoList.add(friendInfoResponseDto);
             }

@@ -6,7 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class FriendInfoResponseDto {
-    private Long friendId;
-    private String friendLoginId;
-    private String friendUsername;
+    private Long friendShipId;
+    private Long senderId;
+    private String senderLoginId;
+    private String senderUsername;
 }
