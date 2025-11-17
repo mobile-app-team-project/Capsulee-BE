@@ -5,11 +5,15 @@ import com.example.capsulee_backend.user.domain.FriendShip;
 import com.example.capsulee_backend.user.domain.User;
 import com.example.capsulee_backend.user.dto.request.FriendShipRequestDto;
 import com.example.capsulee_backend.user.dto.request.FriendShipUpdateRequestDto;
+import com.example.capsulee_backend.user.dto.response.FriendPendingResponseDto;
 import com.example.capsulee_backend.user.dto.response.FriendShipResponseDto;
 import com.example.capsulee_backend.user.repository.FriendShipRepository;
 import com.example.capsulee_backend.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -63,5 +67,26 @@ public class FriendShipService {
         FriendShipResponseDto responseDto = new FriendShipResponseDto(
                 friendShip.getId(), status, sender.getLoginID(), receiver.getLoginID());
         return responseDto;
+    }
+
+    public List<FriendPendingResponseDto> getPendingList(String userLoginID) {
+        User receiver = userRepository.findByLoginID(userLoginID)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
+
+        // 해당 유저가 받은 친구 요청 리스트
+        List<FriendShip> friendShipList = friendShipRepository.findAllByReceiver(receiver);
+
+        List<FriendPendingResponseDto> responseDtoList = new ArrayList<>();
+        for (FriendShip friendShip : friendShipList) {
+            if (friendShip.getStatus().equals(FriendRequest.PENDING)) {
+                // 친구 요청한 경우만 추가
+                User sender = friendShip.getSender();
+                FriendPendingResponseDto friendPendingResponseDto = new FriendPendingResponseDto(
+                        friendShip.getId(), sender.getId(), sender.getLoginID(), sender.getUsername()
+                );
+                responseDtoList.add(friendPendingResponseDto);
+            }
+        }
+        return responseDtoList;
     }
 }
