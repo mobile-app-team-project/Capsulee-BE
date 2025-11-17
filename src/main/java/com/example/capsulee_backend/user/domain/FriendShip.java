@@ -23,4 +23,11 @@ public class FriendShip {
 
     @Enumerated(EnumType.STRING)
     private FriendRequest status; // 상태(대기, 요청 수락, 요청 거절)
+
+    @Builder
+    public FriendShip(User sender, User receiver, FriendRequest status) {
+        this.sender = sender;
+        this.receiver = receiver;
+        this.status = status;
+    }
 }
