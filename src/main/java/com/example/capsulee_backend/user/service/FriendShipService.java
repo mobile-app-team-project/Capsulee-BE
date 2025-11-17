@@ -3,7 +3,7 @@ package com.example.capsulee_backend.user.service;
 import com.example.capsulee_backend.user.domain.FriendRequest;
 import com.example.capsulee_backend.user.domain.FriendShip;
 import com.example.capsulee_backend.user.domain.User;
-import com.example.capsulee_backend.user.dto.response.FriendRequestResponseDto;
+import com.example.capsulee_backend.user.dto.response.FriendShipResponseDto;
 import com.example.capsulee_backend.user.repository.FriendShipRepository;
 import com.example.capsulee_backend.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -15,7 +15,7 @@ public class FriendShipService {
     private final UserRepository userRepository;
     private final FriendShipRepository friendShipRepository;
 
-    public FriendRequestResponseDto createFriendShip(String senderLoginID, String receiverLoginID) {
+    public FriendShipResponseDto createFriendShip(String senderLoginID, String receiverLoginID) {
         if (senderLoginID.equals(receiverLoginID)) {
             throw new IllegalArgumentException("본인에게 친구 요청을 할 수 없습니다.");
         }
@@ -38,7 +38,7 @@ public class FriendShipService {
                 .build();
         FriendShip saved = friendShipRepository.save(friendShip);
 
-        return new FriendRequestResponseDto(
+        return new FriendShipResponseDto(
                 saved.getId(),
                 saved.getStatus(),
                 saved.getSender().getLoginID(),
