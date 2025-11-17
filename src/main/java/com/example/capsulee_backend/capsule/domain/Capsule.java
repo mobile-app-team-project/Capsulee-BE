@@ -2,6 +2,8 @@ package com.example.capsulee_backend.capsule.domain;
 
 import com.example.capsulee_backend.user.domain.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +13,8 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class Capsule {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "capsule_id")

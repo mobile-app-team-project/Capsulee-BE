@@ -21,4 +21,9 @@ public class Reception {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_id")
     private User recipient; // 수신자 유저
+
+    public Reception(Capsule capsule, User recipient) {
+        this.capsule = capsule;
+        this.recipient = recipient;
+    }
 }
