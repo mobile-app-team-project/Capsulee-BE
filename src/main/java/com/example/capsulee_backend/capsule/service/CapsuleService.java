@@ -1,9 +1,6 @@
 package com.example.capsulee_backend.capsule.service;
 
-import com.example.capsulee_backend.capsule.domain.Capsule;
-import com.example.capsulee_backend.capsule.domain.ConditionType;
-import com.example.capsulee_backend.capsule.domain.Conditions;
-import com.example.capsulee_backend.capsule.domain.Reception;
+import com.example.capsulee_backend.capsule.domain.*;
 import com.example.capsulee_backend.capsule.dto.request.CreateCapsuleRequestDto;
 import com.example.capsulee_backend.capsule.dto.response.*;
 import com.example.capsulee_backend.capsule.repository.CapsuleRepository;
@@ -14,9 +11,13 @@ import com.example.capsulee_backend.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,9 @@ public class CapsuleService {
     private final CapsuleRepository capsuleRepository;
     private final ReceptionRepository receptionRepository;
     private final ConditionRepository conditionRepository;
+
+    private static final DateTimeFormatter CAPSULE_DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd 'at' HH:mm");
 
     @Transactional
     public CreateCapsuleResponseDto createCapsule(CreateCapsuleRequestDto request, String loginID) {
@@ -186,5 +190,139 @@ public class CapsuleService {
         }
 
         return conditions;
+    }
+
+    @Transactional
+    public CapsuleDetailResponseDto getCapsule(String loginID, Long capsuleId) {
+
+        User user = userRepository.findByLoginID(loginID)
+                .orElseThrow(() -> new EntityNotFoundException("[ERROR] 유저를 찾을 수 없습니다."));
+        Capsule capsule = capsuleRepository.findById(capsuleId)
+                .orElseThrow(() -> new EntityNotFoundException("[ERROR] 캡슐을 찾을 수 없습니다."));
+
+        boolean isCreator = capsule.getCreator().equals(user);
+        boolean isRecipient = capsule.getReceptions().stream()
+                .anyMatch(r -> r.getRecipient().equals(user));
+
+        if (!isCreator && !isRecipient) {
+            throw new AccessDeniedException("[ERROR] 열람 권한이 없습니다.");
+        }
+
+        LocalDate openDate = capsule.getOpenTime().toLocalDate();
+        LocalDate today = LocalDate.now();
+
+        boolean isBeforeOpen = openDate.isAfter(today);
+        boolean isTodayOpen = openDate.isEqual(today);
+        boolean isAfterOpen = openDate.isBefore(today);
+        boolean isUserReady = isUserReady(user, capsule);
+        boolean isOpened = capsule.isOpened();
+
+        // 1. openTime 이전 -> LOCKED
+        if (isBeforeOpen) {
+            CapsuleDetailResponseDto.LockedCapsuleDetailDto lockedDetail =
+                    new CapsuleDetailResponseDto.LockedCapsuleDetailDto(
+                            new CapsuleInfoDto.LockedCapsuleDto(
+                                    capsule.getId(),
+                                    capsule.getTitle(),
+                                    capsule.getCreator().getUsername(),
+                                    capsule.getOpenTime().format(CAPSULE_DATE_FORMATTER),
+                                    calculateProgressPercent(capsule.getCreatedAt(), capsule.getOpenTime())
+                            ),
+                            getParticipant(capsule),
+                            calculateConditionSummary(capsule)
+                    );
+            return new CapsuleDetailResponseDto(
+                    "LOCKED",
+                    lockedDetail
+            );
+        }
+
+        // 2. 오픈 당일이거나 오픈날이 지났는데 사용자가 Ready 버튼을 아직 누르지 않았을 때 -> WAITING
+        if ((isTodayOpen || isAfterOpen) && !isUserReady && !isOpened) {
+            CapsuleDetailResponseDto.WaitingCapsuleDetailDto waitingDetail =
+                new CapsuleDetailResponseDto.WaitingCapsuleDetailDto(
+                        new CapsuleInfoDto.WaitingCapsuleDto(
+                                capsule.getId(),
+                                capsule.getTitle(),
+                                capsule.getCreator().getUsername(),
+                                capsule.getOpenTime().format(CAPSULE_DATE_FORMATTER)
+                        ),
+                        getParticipant(capsule),
+                        calculateConditionSummary(capsule)
+                );
+            return new CapsuleDetailResponseDto(
+                    "WAITING",
+                    waitingDetail
+            );
+        }
+
+        // 3. Ready인 경우 -> READY
+        if (isUserReady && !isOpened) {
+            CapsuleDetailResponseDto.ReadyCapsuleDetailDto readyDetail =
+                    new CapsuleDetailResponseDto.ReadyCapsuleDetailDto(
+                            new CapsuleInfoDto.ReadyCapsuleDto(
+                                    capsule.getId(),
+                                    capsule.getTitle(),
+                                    capsule.getCreator().getUsername(),
+                                    capsule.getOpenTime().format(CAPSULE_DATE_FORMATTER)
+                            ),
+                            getParticipant(capsule)
+                    );
+            return new CapsuleDetailResponseDto(
+                    "READY",
+                    readyDetail
+            );
+        }
+
+        // 4. 캡슐이 열렸을 경우 -> OPENED
+        CapsuleDetailResponseDto.OpenedCapsuleDetailDto readyDetail =
+                new CapsuleDetailResponseDto.OpenedCapsuleDetailDto(
+                        new CapsuleInfoDto.OpenedCapsuleDto(
+                                capsule.getId(),
+                                capsule.getTitle(),
+                                capsule.getCreator().getUsername(),
+                                capsule.getOpenTime().format(CAPSULE_DATE_FORMATTER),
+                                capsule.getContent()
+                        ),
+                        getParticipant(capsule),
+                        calculateConditionSummary(capsule)
+                );
+        return new CapsuleDetailResponseDto(
+                "OPENED",
+                readyDetail
+        );
+    }
+
+    private int calculateProgressPercent(LocalDateTime createdAt, LocalDateTime openTime) {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (now.isAfter(openTime)) return 100;
+
+        Duration total = Duration.between(createdAt, openTime);
+        Duration passed = Duration.between(createdAt, now);
+
+        double ratio = (double) passed.toMillis() / total.toMillis();
+        return (int) (100 * ratio);
+    }
+
+    private List<ParticipantDto> getParticipant(Capsule capsule) {
+        return capsule.getReceptions().stream()
+                .map(reception -> {
+                    User recipient = reception.getRecipient();
+                    return new ParticipantDto(
+                            recipient.getId(),
+                            recipient.getUsername()
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+    private boolean isUserReady(User user, Capsule capsule) {
+        for (Reception reception : capsule.getReceptions()) {
+            if (reception.getRecipient().equals(user)) {
+                return reception.isReady();
+            }
+        }
+        return false;
     }
 }

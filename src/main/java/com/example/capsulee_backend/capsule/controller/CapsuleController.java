@@ -1,6 +1,7 @@
 package com.example.capsulee_backend.capsule.controller;
 
 import com.example.capsulee_backend.capsule.dto.request.CreateCapsuleRequestDto;
+import com.example.capsulee_backend.capsule.dto.response.CapsuleDetailResponseDto;
 import com.example.capsulee_backend.capsule.dto.response.CreateCapsuleResponseDto;
 import com.example.capsulee_backend.capsule.dto.response.CapsuleListResponseDto;
 import com.example.capsulee_backend.capsule.service.CapsuleService;
@@ -36,5 +37,16 @@ public class CapsuleController {
         String loginID = authentication.getName();
         CapsuleListResponseDto capsules = capsuleService.getCapsules(loginID, type);
         return ResponseEntity.status(HttpStatus.OK).body(capsules);
+    }
+
+    // 캡슐 상세 조회
+    @GetMapping("/{capsuleId}")
+    public ResponseEntity<CapsuleDetailResponseDto> getCapsule(
+            Authentication authentication,
+            @PathVariable("capsuleId") Long capsuleId
+    ) {
+        String loginID = authentication.getName();
+        CapsuleDetailResponseDto capsuleDetail = capsuleService.getCapsule(loginID, capsuleId);
+        return ResponseEntity.status(HttpStatus.OK).body(capsuleDetail);
     }
 }
