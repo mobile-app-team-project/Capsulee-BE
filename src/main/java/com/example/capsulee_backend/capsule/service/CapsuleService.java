@@ -4,8 +4,8 @@ import com.example.capsulee_backend.capsule.domain.Capsule;
 import com.example.capsulee_backend.capsule.domain.ConditionType;
 import com.example.capsulee_backend.capsule.domain.Conditions;
 import com.example.capsulee_backend.capsule.domain.Reception;
-import com.example.capsulee_backend.capsule.dto.request.CapsuleCreateRequest;
-import com.example.capsulee_backend.capsule.dto.response.CapsuleCreateResponse;
+import com.example.capsulee_backend.capsule.dto.request.CreateCapsuleRequestDto;
+import com.example.capsulee_backend.capsule.dto.response.*;
 import com.example.capsulee_backend.capsule.repository.CapsuleRepository;
 import com.example.capsulee_backend.capsule.repository.ConditionRepository;
 import com.example.capsulee_backend.capsule.repository.ReceptionRepository;
@@ -29,7 +29,7 @@ public class CapsuleService {
     private final ConditionRepository conditionRepository;
 
     @Transactional
-    public CapsuleCreateResponse createCapsule(CapsuleCreateRequest request, String loginID) {
+    public CreateCapsuleResponseDto createCapsule(CreateCapsuleRequestDto request, String loginID) {
         /*
         S3 연동 후 이미지 업로드
         String s3Url = s3Uploader.uplodImageFromUrl(request.getImageUrl(), "capsule-" + UUID.randomUUID());
@@ -62,9 +62,9 @@ public class CapsuleService {
         }
 
         // 조건 저장
-        List<CapsuleCreateResponse.ConditionRequest> savedConditionsDto = new ArrayList<>();
+        List<CreateCapsuleResponseDto.ConditionRequest> savedConditionsDto = new ArrayList<>();
         if (request.getConditions() != null) {
-            for (CapsuleCreateRequest.ConditionRequest conditionRequest : request.getConditions()) {
+            for (CreateCapsuleRequestDto.ConditionRequest conditionRequest : request.getConditions()) {
                 ConditionType conditionType = ConditionType.valueOf(conditionRequest.getType());
 
                 Conditions condition = Conditions.builder()
@@ -75,14 +75,14 @@ public class CapsuleService {
 
                 conditionRepository.save(condition);
 
-                savedConditionsDto.add(new CapsuleCreateResponse.ConditionRequest(
+                savedConditionsDto.add(new CreateCapsuleResponseDto.ConditionRequest(
                         condition.getType().name(),
                         condition.getValue()
                 ));
             }
         }
 
-        return new CapsuleCreateResponse(
+        return new CreateCapsuleResponseDto(
                 savedCapsule.getTitle(),
                 savedCapsule.getContent(),
                 savedCapsule.getImageURL(),

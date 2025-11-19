@@ -1,4 +1,4 @@
-package com.example.capsulee_backend.capsule.dto.request;
+package com.example.capsulee_backend.capsule.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CapsuleCreateRequest {
+public class CreateCapsuleResponseDto {
 
     private String title;
     private String content;

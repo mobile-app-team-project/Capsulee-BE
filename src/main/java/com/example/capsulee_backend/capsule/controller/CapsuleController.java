@@ -2,6 +2,8 @@ package com.example.capsulee_backend.capsule.controller;
 
 import com.example.capsulee_backend.capsule.dto.request.CapsuleCreateRequest;
 import com.example.capsulee_backend.capsule.dto.response.CapsuleCreateResponse;
+import com.example.capsulee_backend.capsule.dto.request.CreateCapsuleRequestDto;
+import com.example.capsulee_backend.capsule.dto.response.CreateCapsuleResponseDto;
 import com.example.capsulee_backend.capsule.service.CapsuleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,12 +19,12 @@ public class CapsuleController {
     private final CapsuleService capsuleService;
 
     @PostMapping("")
-    public ResponseEntity<CapsuleCreateResponse> createCapsule(
+    public ResponseEntity<CreateCapsuleResponseDto> createCapsule(
             Authentication authentication,
-            @RequestBody CapsuleCreateRequest request
+            @RequestBody CreateCapsuleRequestDto request
     ) {
         String loginID = authentication.getName();
-        CapsuleCreateResponse response = capsuleService.createCapsule(request, loginID);
+        CreateCapsuleResponseDto response = capsuleService.createCapsule(request, loginID);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }
