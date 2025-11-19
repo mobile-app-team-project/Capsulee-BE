@@ -29,6 +29,7 @@ public class Capsule {
     private String imageURL;
 
     private LocalDateTime openTime; // 열릴 시간
+    private LocalDateTime createdAt;  // 생성 시간
     private boolean isOpened; // 캡슐이 열렸는지
 
     @OneToMany(mappedBy = "capsule")

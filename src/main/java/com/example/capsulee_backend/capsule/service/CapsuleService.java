@@ -46,6 +46,7 @@ public class CapsuleService {
                 .content(request.getContent())
                 .imageURL(request.getImageUrl())  // 임시 URL -> 추후 S3 url로 변경
                 .openTime(request.getOpenTime())
+                .createdAt(LocalDateTime.now())
                 .isOpened(false)
                 .receptions(new ArrayList<>())
                 .condition(new ArrayList<>())
