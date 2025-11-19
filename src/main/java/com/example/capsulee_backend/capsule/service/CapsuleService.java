@@ -6,6 +6,7 @@ import com.example.capsulee_backend.capsule.dto.response.*;
 import com.example.capsulee_backend.capsule.repository.CapsuleRepository;
 import com.example.capsulee_backend.capsule.repository.ConditionRepository;
 import com.example.capsulee_backend.capsule.repository.ReceptionRepository;
+import com.example.capsulee_backend.capsule.repository.RecipientConditionsRepository;
 import com.example.capsulee_backend.user.domain.User;
 import com.example.capsulee_backend.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +31,7 @@ public class CapsuleService {
     private final CapsuleRepository capsuleRepository;
     private final ReceptionRepository receptionRepository;
     private final ConditionRepository conditionRepository;
+    private final RecipientConditionsRepository recipientConditionsRepository;
 
     private static final DateTimeFormatter CAPSULE_DATE_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd 'at' HH:mm");
@@ -58,17 +61,24 @@ public class CapsuleService {
 
         Capsule savedCapsule = capsuleRepository.save(capsule);
 
-        // 수신자 저장
+        // 수신자 미리 조회
+        Map<Long, User> recipientMap = request.getRecipientIds().stream()
+                .map(id -> userRepository.findById(id)
+                        .orElseThrow(() -> new EntityNotFoundException("[ERROR] 수신 유저를 찾을 수 없습니다. ID: " + id)))
+                .collect(Collectors.toMap(User::getId, Function.identity()));
+
+        // Reception 생성
+        List<Reception> receptionList = new ArrayList<>();
         for (Long recipientId : request.getRecipientIds()) {
-            User recipient = userRepository.findById(recipientId)
-                    .orElseThrow(() -> new EntityNotFoundException("[ERROR] 수신 유저를 찾을 수 없습니다."));
-
-            Reception reception = new Reception(capsule, recipient);
-            receptionRepository.save(reception);
+            Reception reception = new Reception(savedCapsule, recipientMap.get(recipientId));
+            receptionList.add(reception);
         }
+        receptionRepository.saveAll(receptionList);
 
-        // 조건 저장
+        // Condition & RecipientConditions 생성
         List<CreateCapsuleResponseDto.ConditionRequest> savedConditionsDto = new ArrayList<>();
+        List<RecipientConditions> recipientConditionsList = new ArrayList<>();
+
         if (request.getConditions() != null) {
             for (CreateCapsuleRequestDto.ConditionRequest conditionRequest : request.getConditions()) {
                 ConditionType conditionType = ConditionType.valueOf(conditionRequest.getType());
@@ -79,13 +89,28 @@ public class CapsuleService {
                         .value(conditionRequest.getValue())
                         .build();
 
-                conditionRepository.save(condition);
+                Conditions savedCondition = conditionRepository.save(condition);
 
+                // response용 dto 저장
                 savedConditionsDto.add(new CreateCapsuleResponseDto.ConditionRequest(
                         condition.getType().name(),
                         condition.getValue()
                 ));
+
+                // RecipientConditions 생성
+                for (Long recipientId : request.getRecipientIds()) {
+                    RecipientConditions rc = RecipientConditions.builder()
+                            .recipient(recipientMap.get(recipientId))
+                            .condition(savedCondition)
+                            .isAccepted(false)
+                            .build();
+                    recipientConditionsList.add(rc);
+                }
             }
+        }
+
+        if (!recipientConditionsList.isEmpty()) {
+            recipientConditionsRepository.saveAll(recipientConditionsList);
         }
 
         return new CreateCapsuleResponseDto(
