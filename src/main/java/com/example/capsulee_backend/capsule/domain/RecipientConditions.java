@@ -2,12 +2,16 @@ package com.example.capsulee_backend.capsule.domain;
 
 import com.example.capsulee_backend.user.domain.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Builder
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class RecipientConditions {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

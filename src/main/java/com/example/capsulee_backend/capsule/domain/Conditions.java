@@ -1,6 +1,8 @@
 package com.example.capsulee_backend.capsule.domain;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,6 +12,8 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class Conditions {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

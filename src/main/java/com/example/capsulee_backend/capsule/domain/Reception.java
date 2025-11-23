@@ -21,4 +21,12 @@ public class Reception {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_id")
     private User recipient; // 수신자 유저
+
+    private boolean isReady;  // 수신자의 ready 여부
+
+    public Reception(Capsule capsule, User recipient) {
+        this.capsule = capsule;
+        this.recipient = recipient;
+        this.isReady = false;
+    }
 }
