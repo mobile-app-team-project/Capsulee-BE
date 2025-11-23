@@ -13,4 +13,6 @@ public interface FriendShipRepository extends JpaRepository<FriendShip, Long> {
     public FriendShip findBySenderAndReceiver(User sender, User receiver);
     public List<FriendShip> findAllByReceiver(User receiver);
     public List<FriendShip> findAllBySender(User sender);
+    public int countByReceiver(User receiver);
+    public int countBySender(User sender);
 }
