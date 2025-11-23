@@ -4,6 +4,7 @@ import com.example.capsulee_backend.config.jwt.PrincipalHandler;
 import com.example.capsulee_backend.user.domain.User;
 import com.example.capsulee_backend.user.dto.request.UserUpdateRequestDto;
 import com.example.capsulee_backend.user.dto.response.UserInfoResponseDto;
+import com.example.capsulee_backend.user.dto.response.UserSearchResponseDto;
 import com.example.capsulee_backend.user.dto.response.UserUpdateResponseDto;
 import com.example.capsulee_backend.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -33,5 +34,16 @@ public class UserController {
         User user = userService.getUserByLoginID(userLoginID);
 
         return ResponseEntity.ok(userService.updateUserInfo(user, userUpdateRequestDto));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<UserSearchResponseDto> searchUser(@RequestParam(required = false) Long id) {
+        User user = userService.getUserById(id);
+
+        if (user == null) { // 유저가 없으면
+            return ResponseEntity.ok(null);
+        }
+        // 유저가 있으면
+        return ResponseEntity.ok(new UserSearchResponseDto(user.getLoginID(), user.getUsername()));
     }
 }
