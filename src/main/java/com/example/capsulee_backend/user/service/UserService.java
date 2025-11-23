@@ -71,6 +71,13 @@ public class UserService {
     }
 
     @Transactional
+    public User getUserById(Long Id) {
+        User user = userRepository.findById(Id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 ID입니다."));
+        return user;
+    }
+
+    @Transactional
     public UserStatResponseDto getUserStat(User user) {
         // 해당 사용자가 수신받은 캡슐 수신 정보들
         List<Reception> receptions = receptionRepository.findByRecipient(user);
