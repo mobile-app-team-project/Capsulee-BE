@@ -6,9 +6,11 @@ import com.example.capsulee_backend.config.jwt.JwtTokenProvider;
 import com.example.capsulee_backend.user.domain.User;
 import com.example.capsulee_backend.user.dto.request.JoinRequestDto;
 import com.example.capsulee_backend.user.dto.request.LoginRequestDto;
+import com.example.capsulee_backend.user.dto.request.UserUpdateRequestDto;
 import com.example.capsulee_backend.user.dto.response.LoginResponseDto;
 import com.example.capsulee_backend.user.dto.response.UserInfoResponseDto;
 import com.example.capsulee_backend.user.dto.response.UserStatResponseDto;
+import com.example.capsulee_backend.user.dto.response.UserUpdateResponseDto;
 import com.example.capsulee_backend.user.repository.FriendShipRepository;
 import com.example.capsulee_backend.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -92,5 +94,11 @@ public class UserService {
         return new UserInfoResponseDto(
                 user.getId(), user.getLoginID(), user.getUsername(), user.isOkAlarm(), stat
         );
+    }
+
+    public UserUpdateResponseDto updateUserInfo(User user, UserUpdateRequestDto requestDto) {
+        user.update(requestDto.getLoginID(), requestDto.getUsername());
+
+        return new UserUpdateResponseDto(user.getLoginID(), user.getUsername());
     }
 }
