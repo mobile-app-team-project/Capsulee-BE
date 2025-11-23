@@ -16,6 +16,7 @@ import com.example.capsulee_backend.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -62,12 +63,14 @@ public class UserService {
         return new LoginResponseDto(accessToken, refreshToken);
     }
 
+    @Transactional
     public User getUserByLoginID(String loginID) {
         User user = userRepository.findByLoginID(loginID)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 ID입니다."));
         return user;
     }
 
+    @Transactional
     public UserStatResponseDto getUserStat(User user) {
         // 해당 사용자가 수신받은 캡슐 수신 정보들
         List<Reception> receptions = receptionRepository.findByRecipient(user);
@@ -87,6 +90,7 @@ public class UserService {
         return new UserStatResponseDto(totals, opened, friends);
     }
 
+    @Transactional
     public UserInfoResponseDto getUserInfo(User user) {
         // 해당 사용자의 정보
         UserStatResponseDto stat = getUserStat(user);
@@ -96,6 +100,7 @@ public class UserService {
         );
     }
 
+    @Transactional
     public UserUpdateResponseDto updateUserInfo(User user, UserUpdateRequestDto requestDto) {
         user.update(requestDto.getLoginID(), requestDto.getUsername());
 
