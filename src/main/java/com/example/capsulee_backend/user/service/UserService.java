@@ -7,6 +7,7 @@ import com.example.capsulee_backend.user.domain.User;
 import com.example.capsulee_backend.user.dto.request.JoinRequestDto;
 import com.example.capsulee_backend.user.dto.request.LoginRequestDto;
 import com.example.capsulee_backend.user.dto.response.LoginResponseDto;
+import com.example.capsulee_backend.user.dto.response.UserInfoResponseDto;
 import com.example.capsulee_backend.user.dto.response.UserStatResponseDto;
 import com.example.capsulee_backend.user.repository.FriendShipRepository;
 import com.example.capsulee_backend.user.repository.UserRepository;
@@ -82,5 +83,14 @@ public class UserService {
         friends += friendShipRepository.countBySender(user);
 
         return new UserStatResponseDto(totals, opened, friends);
+    }
+
+    public UserInfoResponseDto getUserInfo(User user) {
+        // 해당 사용자의 정보
+        UserStatResponseDto stat = getUserStat(user);
+
+        return new UserInfoResponseDto(
+                user.getId(), user.getLoginID(), user.getUsername(), user.isOkAlarm(), stat
+        );
     }
 }
