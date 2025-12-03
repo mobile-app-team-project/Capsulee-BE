@@ -10,4 +10,5 @@ import java.util.List;
 public interface ReceptionRepository extends JpaRepository<Reception, Long> {
     List<Reception> findByRecipient(User currentUser);
     Reception findReceptionByCapsuleAndRecipient(Capsule capsule, User recipient);
+    List<Reception> findReceptionByCapsule(Capsule capsule);
 }

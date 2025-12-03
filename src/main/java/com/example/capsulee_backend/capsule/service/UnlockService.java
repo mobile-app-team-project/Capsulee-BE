@@ -3,12 +3,17 @@ package com.example.capsulee_backend.capsule.service;
 import com.example.capsulee_backend.capsule.domain.Capsule;
 import com.example.capsulee_backend.capsule.domain.Reception;
 import com.example.capsulee_backend.capsule.dto.request.ReadyStatusRequestDto;
+import com.example.capsulee_backend.capsule.dto.response.CapsuleParticipantsResponseDto;
+import com.example.capsulee_backend.capsule.dto.response.ParticipantStatusDto;
 import com.example.capsulee_backend.capsule.dto.response.ReadyStatusResponseDto;
 import com.example.capsulee_backend.capsule.repository.ReceptionRepository;
 import com.example.capsulee_backend.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,5 +29,26 @@ public class UnlockService {
         reception.update(readyStatusRequestDto.isReady());
 
         return new ReadyStatusResponseDto(reception.isReady());
+    }
+
+    @Transactional
+    public CapsuleParticipantsResponseDto getCapsuleParticipants(Capsule capsule) {
+        boolean opened = capsule.isOpened(); // 캡슐이 열렸는지
+        List<ParticipantStatusDto> participantStatusDtos = new ArrayList<>(); // 수신자 정보를 담을 리스트
+
+        // 캡슐을 수신한 모든 수신자 정보
+        List<Reception> receptions = receptionRepository.findReceptionByCapsule(capsule);
+        for (Reception reception : receptions) {
+            User recipient = reception.getRecipient(); // 수신자
+            String statusText = "Waiting..."; // 상태 텍스트
+            if (reception.isReady()) {
+                statusText = "Ready"; // 준비 상태
+            }
+            ParticipantStatusDto participantStatusDto = new ParticipantStatusDto(
+                    recipient.getId(), recipient.getUsername(), reception.isReady(), statusText);
+            participantStatusDtos.add(participantStatusDto);
+        }
+
+        return new CapsuleParticipantsResponseDto(opened, participantStatusDtos);
     }
 }
