@@ -114,6 +114,7 @@ public class CapsuleService {
         }
 
         return new CreateCapsuleResponseDto(
+                savedCapsule.getId(),
                 savedCapsule.getTitle(),
                 savedCapsule.getContent(),
                 savedCapsule.getImageURL(),
@@ -204,10 +205,10 @@ public class CapsuleService {
         List<ConditionSummaryDto> conditions = new ArrayList<>();
 
         // 수신자
-        String recipients = capsule.getReceptions().stream()
-                .map(r -> r.getRecipient().getUsername())
-                .collect(Collectors.joining(", "));
-        conditions.add(new ConditionSummaryDto("RECIPIENTS", recipients));
+//        String recipients = capsule.getReceptions().stream()
+//                .map(r -> r.getRecipient().getUsername())
+//                .collect(Collectors.joining(", "));
+//        conditions.add(new ConditionSummaryDto("RECIPIENTS", recipients));
 
         // 나머지 조건들 (LOCATION, WEATHER, ACTION)
         for (Conditions condition : capsule.getCondition()) {
