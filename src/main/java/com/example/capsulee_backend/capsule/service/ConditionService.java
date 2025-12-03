@@ -138,4 +138,50 @@ public class ConditionService {
         return R * c; // return m
     }
 
+    @Transactional
+    public ActionConditionResponseDto updateActionCondition(Long capsuleId, String loginID, ActionConditionRequestDto request) {
+        Capsule capsule = capsuleRepository.findById(capsuleId)
+                .orElseThrow(() -> new EntityNotFoundException("[ERROR] 캡슐을 찾을 수 없습니다."));
+
+        User user = userRepository.findByLoginID(loginID)
+                .orElseThrow(() -> new EntityNotFoundException("[ERROR] 사용자를 찾을 수 없습니다."));
+
+        // 캡슐 잠금 조건
+        List<Conditions> conditions = capsule.getCondition();
+
+        // 행동 조건이 있는지 확인
+        Optional<Conditions> actionConditionOpt = conditions.stream()
+                .filter(c -> c.getType() == ConditionType.ACTION)
+                .findFirst();
+
+        // 행동 조건이 있다면
+        if (actionConditionOpt.isPresent()) {
+            Conditions actionCondition = actionConditionOpt.get();
+
+            RecipientConditions rc = recipientConditionsRepository.findByRecipientAndCondition(user, actionCondition)
+                    .orElseThrow(() -> new RuntimeException("[ERROR] 조건 매핑이 없습니다."));
+
+            rc.updateStatus(request.isMatched());
+        }
+
+        List<RecipientConditions> recipientConditionsList = conditions.stream()
+                .map(condition -> recipientConditionsRepository.findByRecipientAndCondition(user, condition)
+                        .orElse(null))  // null로 처리해서 필터링
+                .filter(Objects::nonNull)
+                .toList();
+
+        if (recipientConditionsList.size() != conditions.size()) {
+            throw new RuntimeException("[ERROR] 일부 조건에 대한 매핑 정보가 없습니다.");
+        }
+
+        boolean isReadyAvailable = recipientConditionsList.stream()
+                .allMatch(RecipientConditions::isAccepted);
+
+        Reception reception = receptionRepository.findByCapsuleAndRecipient(capsule, user)
+                .orElseThrow(() -> new RuntimeException("[ERROR] 수신자 정보를 찾을 수 없습니다."));
+
+        reception.setReady(isReadyAvailable);
+
+        return new ActionConditionResponseDto(isReadyAvailable);
+    }
 }
