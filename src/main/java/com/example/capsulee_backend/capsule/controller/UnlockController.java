@@ -2,6 +2,7 @@ package com.example.capsulee_backend.capsule.controller;
 
 import com.example.capsulee_backend.capsule.domain.Capsule;
 import com.example.capsulee_backend.capsule.dto.request.ReadyStatusRequestDto;
+import com.example.capsulee_backend.capsule.dto.response.CapsuleParticipantsResponseDto;
 import com.example.capsulee_backend.capsule.dto.response.ReadyStatusResponseDto;
 import com.example.capsulee_backend.capsule.service.CapsuleService;
 import com.example.capsulee_backend.capsule.service.UnlockService;
@@ -36,5 +37,15 @@ public class UnlockController {
         // ready 상태 업데이트
         ReadyStatusResponseDto readyStatusResponseDto = unlockService.changeReadyStatus(capsule, user, readyStatusRequestDto);
         return ResponseEntity.ok(readyStatusResponseDto);
+    }
+
+    @GetMapping("/check/{capsuleId}")
+    public ResponseEntity<CapsuleParticipantsResponseDto> getCapsuleParticipants(
+            @PathVariable Long capsuleId
+    ) {
+        // 캡슐 정보 가져오기
+        Capsule capsule = capsuleService.getCapsuleById(capsuleId);
+
+        return ResponseEntity.ok(unlockService.getCapsuleParticipants(capsule));
     }
 }
