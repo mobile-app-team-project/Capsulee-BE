@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReadyStatusRequestDto {
-    private boolean isReady; // 수신자가 ready 버튼을 눌렀는지
+    private boolean ready; // 수신자가 ready 버튼을 눌렀는지
 }
