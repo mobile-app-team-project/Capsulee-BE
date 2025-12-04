@@ -29,4 +29,8 @@ public class Reception {
         this.recipient = recipient;
         this.isReady = false;
     }
+
+    public void update(boolean isReady) {
+        this.isReady = isReady;
+    }
 }

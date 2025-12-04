@@ -350,4 +350,11 @@ public class CapsuleService {
         }
         return false;
     }
+
+    @Transactional
+    public Capsule getCapsuleById(Long Id) {
+        Capsule capsule = capsuleRepository.findById(Id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 ID입니다."));
+        return capsule;
+    }
 }
