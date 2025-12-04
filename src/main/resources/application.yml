@@ -13,3 +13,8 @@ spring:
         format_sql: true
     hibernate:
       ddl-auto: update
+openweatherapi:
+  config:
+    import: "classpath:SECRET.yml"
+  api:
+    base-url: https://api.openweathermap.org/data/2.5

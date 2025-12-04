@@ -5,6 +5,8 @@ import com.example.capsulee_backend.capsule.dto.response.CapsuleDetailResponseDt
 import com.example.capsulee_backend.capsule.dto.response.CreateCapsuleResponseDto;
 import com.example.capsulee_backend.capsule.dto.response.CapsuleListResponseDto;
 import com.example.capsulee_backend.capsule.service.CapsuleService;
+import com.example.capsulee_backend.weather.service.OpenWeatherService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +19,15 @@ import org.springframework.web.bind.annotation.*;
 public class CapsuleController {
 
     private final CapsuleService capsuleService;
+    private final OpenWeatherService weatherService;
 
+    @Operation(
+            summary = "캡슐 생성",
+            description = "캡슐을 생성하고, 조건과 수신자 정보를 함께 저장합니다." +
+                    "위치(LOCATION)는 '위도, 경도, 장소명'의 형식으로 작성해야 합니다" +
+                    "날씨(WEATHER)는 CLEAR | CLOUD | RAINY | SNOW 여야 합니다" +
+                    "행동(ACTION)은 자유롭게 작성해주세요"
+    )
     @PostMapping("")
     public ResponseEntity<CreateCapsuleResponseDto> createCapsule(
             Authentication authentication,
@@ -29,6 +39,10 @@ public class CapsuleController {
     }
 
     // 캡슐 목록 조회
+    @Operation(
+            summary = "캡슐 목록 조회",
+            description = "캡슐 목록을 조회합니다. type을 받습니다.(sent | received)"
+    )
     @GetMapping("")
     public ResponseEntity<CapsuleListResponseDto> getCapsules(
             Authentication authentication,
@@ -40,6 +54,10 @@ public class CapsuleController {
     }
 
     // 캡슐 상세 조회
+    @Operation(
+            summary = "캡슐 상세 조회",
+            description = "캡슐 상세 정보를 조회합니다."
+    )
     @GetMapping("/{capsuleId}")
     public ResponseEntity<CapsuleDetailResponseDto> getCapsule(
             Authentication authentication,

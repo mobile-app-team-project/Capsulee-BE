@@ -4,6 +4,7 @@ import com.example.capsulee_backend.user.domain.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -22,6 +23,7 @@ public class Reception {
     @JoinColumn(name = "recipient_id")
     private User recipient; // 수신자 유저
 
+    @Setter
     private boolean isReady;  // 수신자의 ready 여부
 
     public Reception(Capsule capsule, User recipient) {

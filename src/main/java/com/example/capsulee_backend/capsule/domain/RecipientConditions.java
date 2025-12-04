@@ -27,4 +27,8 @@ public class RecipientConditions {
     private Conditions condition;
 
     private boolean isAccepted; // 사용자 캡슐조건 만족 여부
+
+    public void updateStatus(boolean isAccepted) {
+        this.isAccepted = isAccepted;
+    }
 }
