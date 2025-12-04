@@ -49,4 +49,9 @@ public class User {
         this.username = username;
         this.isOkAlarm = isOkAlarm;
     }
+
+    public void update(String loginID, String username) {
+        this.loginID = loginID;
+        this.username = username;
+    }
 }

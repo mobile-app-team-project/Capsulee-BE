@@ -4,6 +4,7 @@ import com.example.capsulee_backend.user.domain.FriendRequest;
 import com.example.capsulee_backend.user.domain.FriendShip;
 import com.example.capsulee_backend.user.domain.User;
 import com.example.capsulee_backend.user.dto.request.FriendShipUpdateRequestDto;
+import com.example.capsulee_backend.user.dto.response.FriendAcceptedInfoResponseDto;
 import com.example.capsulee_backend.user.dto.response.FriendInfoResponseDto;
 import com.example.capsulee_backend.user.dto.response.FriendShipResponseDto;
 import com.example.capsulee_backend.user.repository.FriendShipRepository;
@@ -94,12 +95,12 @@ public class FriendShipService {
     }
 
     @Transactional
-    public List<FriendInfoResponseDto> getFriendList(String userLoginID) {
+    public List<FriendAcceptedInfoResponseDto> getFriendList(String userLoginID) {
         User user = userRepository.findByLoginID(userLoginID)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
         // 친구 상태인 유저 리스트
-        List<FriendInfoResponseDto> responseDtoList = new ArrayList<>();
+        List<FriendAcceptedInfoResponseDto> responseDtoList = new ArrayList<>();
 
         // 해당 유저가 친구 신청을 한 경우
         List<FriendShip> sendFriendShip = friendShipRepository.findAllBySender(user);
@@ -107,10 +108,10 @@ public class FriendShipService {
             if (friendShip.getStatus().equals(FriendRequest.ACCEPTED)) {
                 // 친구 요청을 accept한 경우에만 친구 상태
                 User friend = friendShip.getReceiver();
-                FriendInfoResponseDto friendInfoResponseDto = new FriendInfoResponseDto(
+                FriendAcceptedInfoResponseDto friendAcceptedInfoResponseDto = new FriendAcceptedInfoResponseDto(
                         friendShip.getId(), friend.getId(), friend.getLoginID(), friend.getUsername()
                 );
-                responseDtoList.add(friendInfoResponseDto);
+                responseDtoList.add(friendAcceptedInfoResponseDto);
             }
         }
 
@@ -120,10 +121,10 @@ public class FriendShipService {
             if (friendShip.getStatus().equals(FriendRequest.ACCEPTED)) {
                 // 친구 요청을 accept한 경우에만 친구 상태
                 User friend = friendShip.getSender();
-                FriendInfoResponseDto friendInfoResponseDto = new FriendInfoResponseDto(
+                FriendAcceptedInfoResponseDto friendAcceptedInfoResponseDto = new FriendAcceptedInfoResponseDto(
                         friendShip.getId(), friend.getId(), friend.getLoginID(), friend.getUsername()
                 );
-                responseDtoList.add(friendInfoResponseDto);
+                responseDtoList.add(friendAcceptedInfoResponseDto);
             }
         }
 
