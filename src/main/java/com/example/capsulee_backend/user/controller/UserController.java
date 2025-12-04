@@ -30,7 +30,7 @@ public class UserController {
     @PutMapping("/me")
     public ResponseEntity<UserUpdateResponseDto> updateUserInfo(@RequestBody UserUpdateRequestDto userUpdateRequestDto) {
         // 토큰에서 내 정보 가져오기
-        String userLoginID = PrincipalHandler.getLoginIDFromPrincipal();;
+        String userLoginID = PrincipalHandler.getLoginIDFromPrincipal();
         User user = userService.getUserByLoginID(userLoginID);
 
         return ResponseEntity.ok(userService.updateUserInfo(user, userUpdateRequestDto));
