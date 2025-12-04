@@ -3,14 +3,13 @@ package com.example.capsulee_backend.user.service;
 import com.example.capsulee_backend.capsule.domain.Reception;
 import com.example.capsulee_backend.capsule.repository.ReceptionRepository;
 import com.example.capsulee_backend.config.jwt.JwtTokenProvider;
+import com.example.capsulee_backend.user.domain.FriendRequest;
+import com.example.capsulee_backend.user.domain.FriendShip;
 import com.example.capsulee_backend.user.domain.User;
 import com.example.capsulee_backend.user.dto.request.JoinRequestDto;
 import com.example.capsulee_backend.user.dto.request.LoginRequestDto;
 import com.example.capsulee_backend.user.dto.request.UserUpdateRequestDto;
-import com.example.capsulee_backend.user.dto.response.LoginResponseDto;
-import com.example.capsulee_backend.user.dto.response.UserInfoResponseDto;
-import com.example.capsulee_backend.user.dto.response.UserStatResponseDto;
-import com.example.capsulee_backend.user.dto.response.UserUpdateResponseDto;
+import com.example.capsulee_backend.user.dto.response.*;
 import com.example.capsulee_backend.user.repository.FriendShipRepository;
 import com.example.capsulee_backend.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -18,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -112,5 +112,30 @@ public class UserService {
         user.update(requestDto.getLoginID(), requestDto.getUsername());
 
         return new UserUpdateResponseDto(user.getLoginID(), user.getUsername());
+    }
+
+    public List<OtherUserInfoResponseDto> getAllOtherUserInfo(User user) {
+        List<OtherUserInfoResponseDto> otherUserInfoResponseDtoList = new ArrayList<>();
+
+        // 모든 유저 조회
+        List<User> allOtherUsers = userRepository.findAll();
+        for (User otherUser : allOtherUsers) {
+            // 친구 요청 보낸 적 있는 경우
+            if (friendShipRepository.existsBySenderAndReceiver(user, otherUser)) {
+                FriendShip friendShip = friendShipRepository.findBySenderAndReceiver(user, otherUser);
+                otherUserInfoResponseDtoList.add(new OtherUserInfoResponseDto(otherUser.getId(), otherUser.getLoginID(), otherUser.getUsername(), friendShip.getStatus()));
+            }
+            // 친구 요청 받은 적 있는 경우
+            else if (friendShipRepository.existsBySenderAndReceiver(otherUser, user)) {
+                FriendShip friendShip = friendShipRepository.findBySenderAndReceiver(otherUser, user);
+                otherUserInfoResponseDtoList.add(new OtherUserInfoResponseDto(otherUser.getId(), otherUser.getLoginID(), otherUser.getUsername(), friendShip.getStatus()));
+            }
+            // 아무런 친구 요청이 없었던 경우
+            else {
+                otherUserInfoResponseDtoList.add(new OtherUserInfoResponseDto(otherUser.getId(), otherUser.getLoginID(), otherUser.getUsername(), null));
+            }
+        }
+
+        return otherUserInfoResponseDtoList;
     }
 }
