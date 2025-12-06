@@ -1,8 +1,8 @@
 spring:
   config:
-    import: "classpath:SECRET.yml"
+    import: "optional:classpath:application-secret.yml"
   profiles:
-    active: local
+    active: deployment
   jpa:
     show-sql: true
     properties:
@@ -12,6 +12,6 @@ spring:
       ddl-auto: update
 openweatherapi:
   config:
-    import: "classpath:SECRET.yml"
+    import: "optional:classpath:application-secret.yml"
   api:
     base-url: https://api.openweathermap.org/data/2.5
