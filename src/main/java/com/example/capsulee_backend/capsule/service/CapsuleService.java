@@ -1,5 +1,6 @@
 package com.example.capsulee_backend.capsule.service;
 
+import com.example.capsulee_backend.aws.s3.S3Uploader;
 import com.example.capsulee_backend.capsule.domain.*;
 import com.example.capsulee_backend.capsule.dto.request.CreateCapsuleRequestDto;
 import com.example.capsulee_backend.capsule.dto.response.*;
@@ -14,6 +15,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -35,9 +37,10 @@ public class CapsuleService {
 
     private static final DateTimeFormatter CAPSULE_DATE_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd 'at' HH:mm");
+    private final S3Uploader s3Uploader;
 
     @Transactional
-    public CreateCapsuleResponseDto createCapsule(CreateCapsuleRequestDto request, String loginID) {
+    public CreateCapsuleResponseDto createCapsule(CreateCapsuleRequestDto request, String loginID, MultipartFile imageFile) {
         /*
         S3 연동 후 이미지 업로드
         String s3Url = s3Uploader.uplodImageFromUrl(request.getImageUrl(), "capsule-" + UUID.randomUUID());
@@ -46,12 +49,19 @@ public class CapsuleService {
         User user = userRepository.findByLoginID(loginID)
                 .orElseThrow(() -> new EntityNotFoundException("[ERROR] 유저를 찾을 수 없습니다."));
 
+        // s3 이미지 업로드
+        String s3Url = null;
+        if (imageFile != null && !imageFile.isEmpty()) {
+            s3Url = s3Uploader.upload(imageFile, "capsules");
+        }
+
+
         // 캡슐 저장
         Capsule capsule = Capsule.builder()
                 .creator(user)
                 .title(request.getTitle())
                 .content(request.getContent())
-                .imageURL(request.getImageUrl())  // 임시 URL -> 추후 S3 url로 변경
+                .imageURL(s3Url)
                 .openTime(request.getOpenTime())
                 .createdAt(LocalDateTime.now())
                 .isOpened(false)

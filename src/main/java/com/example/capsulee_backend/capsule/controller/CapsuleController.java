@@ -9,9 +9,11 @@ import com.example.capsulee_backend.weather.service.OpenWeatherService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/capsules")
@@ -28,13 +30,14 @@ public class CapsuleController {
                     "날씨(WEATHER)는 CLEAR | CLOUD | RAINY | SNOW 여야 합니다" +
                     "행동(ACTION)은 자유롭게 작성해주세요"
     )
-    @PostMapping("")
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CreateCapsuleResponseDto> createCapsule(
             Authentication authentication,
-            @RequestBody CreateCapsuleRequestDto request
+            @RequestPart("data") CreateCapsuleRequestDto request,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile
     ) {
         String loginID = authentication.getName();
-        CreateCapsuleResponseDto response = capsuleService.createCapsule(request, loginID);
+        CreateCapsuleResponseDto response = capsuleService.createCapsule(request, loginID, imageFile);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
