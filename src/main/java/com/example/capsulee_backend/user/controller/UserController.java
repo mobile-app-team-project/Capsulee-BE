@@ -3,6 +3,7 @@ package com.example.capsulee_backend.user.controller;
 import com.example.capsulee_backend.config.jwt.PrincipalHandler;
 import com.example.capsulee_backend.user.domain.User;
 import com.example.capsulee_backend.user.dto.request.UserUpdateRequestDto;
+import com.example.capsulee_backend.user.dto.response.OtherUserInfoResponseDto;
 import com.example.capsulee_backend.user.dto.response.UserInfoResponseDto;
 import com.example.capsulee_backend.user.dto.response.UserSearchResponseDto;
 import com.example.capsulee_backend.user.dto.response.UserUpdateResponseDto;
@@ -10,6 +11,8 @@ import com.example.capsulee_backend.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,5 +48,16 @@ public class UserController {
         }
         // 유저가 있으면
         return ResponseEntity.ok(new UserSearchResponseDto(user.getLoginID(), user.getUsername()));
+    }
+
+    @GetMapping("")
+    public ResponseEntity<List<OtherUserInfoResponseDto>> getAllOtherUserInfo() {
+        // 토큰에서 내 정보 가져오기
+        String userLoginID = PrincipalHandler.getLoginIDFromPrincipal();
+        User user = userService.getUserByLoginID(userLoginID);
+
+        // 모든 사용자 정보 가져오기
+        List<OtherUserInfoResponseDto> allOtherUserInfo = userService.getAllOtherUserInfo(user);
+        return ResponseEntity.ok(allOtherUserInfo);
     }
 }
