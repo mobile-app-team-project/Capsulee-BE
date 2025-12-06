@@ -27,7 +27,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        .requestMatchers("/**").authenticated()
+                        .anyRequest().authenticated()
                 );
         // 해당 필터 전에 jwt 필터가 오도록
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
