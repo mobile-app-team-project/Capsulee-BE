@@ -32,7 +32,7 @@ public class S3Uploader {
                     .bucket(bucketName)
                     .key(fileName)
                     .contentType(file.getContentType())
-                    .acl("public-read")  // 퍼블릭 읽기 허용 (S3 정책 필요)
+//                    .acl("public-read")  // 퍼블릭 읽기 허용 (S3 정책 필요)
                     .build();
 
             s3Client.putObject(
@@ -46,6 +46,8 @@ public class S3Uploader {
 
         return getFileUrl(fileName);
     }
+
+
 
     private String createFileName(String originalName) {
         String ext = originalName.substring(originalName.lastIndexOf("."));
