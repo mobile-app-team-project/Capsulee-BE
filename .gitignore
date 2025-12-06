@@ -70,3 +70,4 @@ Temporary Items
 *.icloud
 
 **/SECRET.yml
+**/application-secret.yml

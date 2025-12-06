@@ -1,11 +1,8 @@
 spring:
   config:
-    import: "classpath:SECRET.yml"
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/capsulee?useSSL=false&serverTimezone=Asia/Seoul
-    username: root # 기본 사용자 이름
-    password: # 기본 비밀번호
+    import: "optional:classpath:application-secret.yml"
+  profiles:
+    active: deployment
   jpa:
     show-sql: true
     properties:
@@ -15,6 +12,6 @@ spring:
       ddl-auto: update
 openweatherapi:
   config:
-    import: "classpath:SECRET.yml"
+    import: "optional:classpath:application-secret.yml"
   api:
     base-url: https://api.openweathermap.org/data/2.5
