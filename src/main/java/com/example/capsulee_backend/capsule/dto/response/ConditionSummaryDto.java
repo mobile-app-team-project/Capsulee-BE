@@ -11,4 +11,5 @@ public class ConditionSummaryDto {
 
     private String type;
     private String value;
+    private boolean matched;  // true | false
 }
