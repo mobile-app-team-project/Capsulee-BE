@@ -168,7 +168,7 @@ public class CapsuleService {
 
         for (Capsule capsule : listCapsules) {
             String fromOrTo = calculateFromOrTo(capsule, type);
-            List<ConditionSummaryDto> conditions = calculateConditionSummary(capsule);
+            List<ConditionSummaryDto> conditions = calculateConditionSummary(currentUser, capsule);
 
             CapsuleSummaryDto summaryDto = new CapsuleSummaryDto(
                     capsule.getId(),
@@ -211,7 +211,7 @@ public class CapsuleService {
         }
     }
 
-    private List<ConditionSummaryDto> calculateConditionSummary(Capsule capsule) {
+    private List<ConditionSummaryDto> calculateConditionSummary(User recipient, Capsule capsule) {
         List<ConditionSummaryDto> conditions = new ArrayList<>();
 
         // 수신자
@@ -220,12 +220,17 @@ public class CapsuleService {
 //                .collect(Collectors.joining(", "));
 //        conditions.add(new ConditionSummaryDto("RECIPIENTS", recipients));
 
-        // 나머지 조건들 (LOCATION, WEATHER, ACTION)
-        for (Conditions condition : capsule.getCondition()) {
-            conditions.add(new ConditionSummaryDto(condition.getType().name(), condition.getValue()));
-        }
+        List<RecipientConditions> recipientConditions = recipientConditionsRepository
+                .findAllByRecipientAndCondition_Capsule(recipient, capsule);
 
-        return conditions;
+        // 나머지 조건들 (LOCATION, WEATHER, ACTION)
+        return recipientConditions.stream()
+                .map(rc -> new ConditionSummaryDto(
+                        rc.getCondition().getType().name(),   // "WEATHER", "LOCATION", "ACTION"
+                        rc.getCondition().getValue(),         // "SNOW", "37.123, 127.456"
+                        rc.isAccepted()                       // ✔️ matched 여부
+                ))
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -265,7 +270,7 @@ public class CapsuleService {
                                     calculateProgressPercent(capsule.getCreatedAt(), capsule.getOpenTime())
                             ),
                             getParticipant(capsule),
-                            calculateConditionSummary(capsule)
+                            calculateConditionSummary(user, capsule)
                     );
             return new CapsuleDetailResponseDto(
                     "LOCKED",
@@ -284,7 +289,7 @@ public class CapsuleService {
                                 capsule.getOpenTime().format(CAPSULE_DATE_FORMATTER)
                         ),
                         getParticipant(capsule),
-                        calculateConditionSummary(capsule)
+                        calculateConditionSummary(user, capsule)
                 );
             return new CapsuleDetailResponseDto(
                     "WAITING",
@@ -325,7 +330,7 @@ public class CapsuleService {
                         ),
                         getParticipant(capsule),
                         progress,
-                        calculateConditionSummary(capsule)
+                        calculateConditionSummary(user, capsule)
                 );
         return new CapsuleDetailResponseDto(
                 "OPENED",
