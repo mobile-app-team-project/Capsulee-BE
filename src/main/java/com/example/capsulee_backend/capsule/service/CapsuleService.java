@@ -294,6 +294,7 @@ public class CapsuleService {
 
         // 3. Ready인 경우 -> READY
         if (isUserReady && !isOpened) {
+            CapsuleDetailResponseDto.ReadyProgressDto progress = calculateReadyProgress(capsule);
             CapsuleDetailResponseDto.ReadyCapsuleDetailDto readyDetail =
                     new CapsuleDetailResponseDto.ReadyCapsuleDetailDto(
                             new CapsuleInfoDto.ReadyCapsuleDto(
@@ -302,6 +303,7 @@ public class CapsuleService {
                                     capsule.getCreator().getUsername(),
                                     capsule.getOpenTime().format(CAPSULE_DATE_FORMATTER)
                             ),
+                            progress,
                             getParticipant(capsule)
                     );
             return new CapsuleDetailResponseDto(
@@ -311,6 +313,7 @@ public class CapsuleService {
         }
 
         // 4. 캡슐이 열렸을 경우 -> OPENED
+        CapsuleDetailResponseDto.ReadyProgressDto progress = calculateReadyProgress(capsule);
         CapsuleDetailResponseDto.OpenedCapsuleDetailDto readyDetail =
                 new CapsuleDetailResponseDto.OpenedCapsuleDetailDto(
                         new CapsuleInfoDto.OpenedCapsuleDto(
@@ -321,6 +324,7 @@ public class CapsuleService {
                                 capsule.getContent()
                         ),
                         getParticipant(capsule),
+                        progress,
                         calculateConditionSummary(capsule)
                 );
         return new CapsuleDetailResponseDto(
@@ -345,9 +349,11 @@ public class CapsuleService {
         return capsule.getReceptions().stream()
                 .map(reception -> {
                     User recipient = reception.getRecipient();
+                    String status = reception.isReady() ? "Ready" : "Waiting..";
                     return new ParticipantDto(
                             recipient.getId(),
-                            recipient.getUsername()
+                            recipient.getUsername(),
+                            status
                     );
                 })
                 .collect(Collectors.toList());
@@ -367,5 +373,17 @@ public class CapsuleService {
         Capsule capsule = capsuleRepository.findById(Id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 ID입니다."));
         return capsule;
+    }
+
+    private CapsuleDetailResponseDto.ReadyProgressDto calculateReadyProgress(Capsule capsule) {
+        // 총 참여자 수 (수신자 기준)
+        int totalRecipients = capsule.getReceptions().size();
+
+        // Ready 상태인 참여자 수 카운트
+        long readyCount = capsule.getReceptions().stream()
+                .filter(Reception::isReady)
+                .count();
+
+        return new CapsuleDetailResponseDto.ReadyProgressDto((int) readyCount, totalRecipients);
     }
 }
