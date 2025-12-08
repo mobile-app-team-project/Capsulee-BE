@@ -76,6 +76,9 @@ public class CapsuleController {
     ) {
         String loginID = authentication.getName();
         Long capsuleId = capsuleService.getLatestCapsuleId(loginID);
+        if (capsuleId == null) { // 아직 아무런 캡슐이 없는 경우
+            return ResponseEntity.status(HttpStatus.OK).body(null);
+        }
         CapsuleDetailResponseDto capsuleDetail = capsuleService.getCapsule(loginID, capsuleId);
         return ResponseEntity.status(HttpStatus.OK).body(capsuleDetail);
     }
