@@ -3,11 +3,15 @@ package com.example.capsulee_backend.capsule.service;
 import com.example.capsulee_backend.capsule.domain.Capsule;
 import com.example.capsulee_backend.capsule.domain.Reception;
 import com.example.capsulee_backend.capsule.dto.request.ReadyStatusRequestDto;
+import com.example.capsulee_backend.capsule.dto.response.CapsuleDetailResponseDto;
 import com.example.capsulee_backend.capsule.dto.response.CapsuleParticipantsResponseDto;
 import com.example.capsulee_backend.capsule.dto.response.ParticipantStatusDto;
 import com.example.capsulee_backend.capsule.dto.response.ReadyStatusResponseDto;
+import com.example.capsulee_backend.capsule.repository.CapsuleRepository;
 import com.example.capsulee_backend.capsule.repository.ReceptionRepository;
 import com.example.capsulee_backend.user.domain.User;
+import com.example.capsulee_backend.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +23,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UnlockService {
     private final ReceptionRepository receptionRepository;
+    private final UserRepository userRepository;
+    private final CapsuleRepository capsuleRepository;
+    private final CapsuleService capsuleService;
 
     @Transactional
     public ReadyStatusResponseDto changeReadyStatus(Capsule capsule, User recipient, ReadyStatusRequestDto readyStatusRequestDto) {
@@ -50,5 +57,18 @@ public class UnlockService {
         }
 
         return new CapsuleParticipantsResponseDto(opened, participantStatusDtos);
+    }
+
+    @Transactional
+    public CapsuleDetailResponseDto openCapsule(String userLoginID, Long capsuleId) {
+        User user = userRepository.findByLoginID(userLoginID)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        Capsule capsule = capsuleRepository.findById(capsuleId)
+                .orElseThrow(() -> new EntityNotFoundException("Capsule not found"));
+
+        capsule.setOpened(true);
+
+        return capsuleService.getCapsule(userLoginID, capsuleId);
     }
 }

@@ -2,6 +2,7 @@ package com.example.capsulee_backend.capsule.controller;
 
 import com.example.capsulee_backend.capsule.domain.Capsule;
 import com.example.capsulee_backend.capsule.dto.request.ReadyStatusRequestDto;
+import com.example.capsulee_backend.capsule.dto.response.CapsuleDetailResponseDto;
 import com.example.capsulee_backend.capsule.dto.response.CapsuleParticipantsResponseDto;
 import com.example.capsulee_backend.capsule.dto.response.ReadyStatusResponseDto;
 import com.example.capsulee_backend.capsule.service.CapsuleService;
@@ -47,5 +48,14 @@ public class UnlockController {
         Capsule capsule = capsuleService.getCapsuleById(capsuleId);
 
         return ResponseEntity.ok(unlockService.getCapsuleParticipants(capsule));
+    }
+
+    @PostMapping("/open/{capsuleId}")
+    public ResponseEntity<CapsuleDetailResponseDto> openCapsule(
+            @PathVariable Long capsuleId
+    ){
+        String userLoginID = PrincipalHandler.getLoginIDFromPrincipal();;
+
+        return ResponseEntity.ok(unlockService.openCapsule(userLoginID, capsuleId));
     }
 }
