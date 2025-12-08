@@ -329,6 +329,22 @@ public class CapsuleService {
         );
     }
 
+    public Long getLatestCapsuleId(String loginID) {
+        User user = userRepository.findByLoginID(loginID)
+                .orElseThrow(() -> new EntityNotFoundException("[ERROR] 유저를 찾을 수 없습니다."));
+
+        // 해당 유저가 가진 캡슐 중, open 날짜가 가장 가까운 캡슐을 반환
+        LocalDateTime now = LocalDateTime.now(); // 현재 시간보다는 뒤여야 함
+        Capsule latestCapsule = capsuleRepository
+                .findTopByCreatorAndOpenTimeAfterOrderByOpenTimeAsc(user, now)
+                .orElse(null);
+        if (latestCapsule == null) {
+            // 아직 캡슐이 하나도 없는 경우
+            return null;
+        }
+        return latestCapsule.getId(); // capsule의 id 반환
+    }
+
     private int calculateProgressPercent(LocalDateTime createdAt, LocalDateTime openTime) {
         LocalDateTime now = LocalDateTime.now();
 

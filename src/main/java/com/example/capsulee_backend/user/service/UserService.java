@@ -91,8 +91,27 @@ public class UserService {
 
         // 친구 수
         int friends = 0;
-        friends += friendShipRepository.countByReceiver(user);
-        friends += friendShipRepository.countBySender(user);
+        // 해당 유저가 친구 신청을 한 경우
+        List<FriendShip> sendFriendShip = friendShipRepository.findAllBySender(user);
+        for (FriendShip friendShip : sendFriendShip) {
+            if (friendShip.getStatus().equals(FriendRequest.ACCEPTED)) {
+                // 친구 요청을 accept한 경우에만 친구 상태
+                friends++;
+            }
+        }
+
+        // 해당 유저가 친구 신청을 받은 경우
+        List<FriendShip> receiveFriendShip = friendShipRepository.findAllByReceiver(user);
+        for (FriendShip friendShip : receiveFriendShip) {
+            if (friendShip.getStatus().equals(FriendRequest.ACCEPTED)) {
+                // 친구 요청을 accept한 경우에만 친구 상태
+                User friend = friendShip.getSender();
+                FriendAcceptedInfoResponseDto friendAcceptedInfoResponseDto = new FriendAcceptedInfoResponseDto(
+                        friendShip.getId(), friend.getId(), friend.getLoginID(), friend.getUsername()
+                );
+                friends++;
+            }
+        }
 
         return new UserStatResponseDto(totals, opened, friends);
     }

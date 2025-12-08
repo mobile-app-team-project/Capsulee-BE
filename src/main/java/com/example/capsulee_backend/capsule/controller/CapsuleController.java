@@ -70,4 +70,13 @@ public class CapsuleController {
         CapsuleDetailResponseDto capsuleDetail = capsuleService.getCapsule(loginID, capsuleId);
         return ResponseEntity.status(HttpStatus.OK).body(capsuleDetail);
     }
+    @GetMapping("/home")
+    public ResponseEntity<CapsuleDetailResponseDto> getLatestCapsule(
+            Authentication authentication
+    ) {
+        String loginID = authentication.getName();
+        Long capsuleId = capsuleService.getLatestCapsuleId(loginID);
+        CapsuleDetailResponseDto capsuleDetail = capsuleService.getCapsule(loginID, capsuleId);
+        return ResponseEntity.status(HttpStatus.OK).body(capsuleDetail);
+    }
 }
