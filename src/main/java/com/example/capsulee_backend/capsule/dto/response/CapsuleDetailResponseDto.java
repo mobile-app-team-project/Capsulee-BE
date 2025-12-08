@@ -2,6 +2,7 @@ package com.example.capsulee_backend.capsule.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -35,6 +36,7 @@ public class CapsuleDetailResponseDto {
     @AllArgsConstructor
     public static class ReadyCapsuleDetailDto {
         private CapsuleInfoDto.ReadyCapsuleDto capsuleInfo;
+        private ReadyProgressDto readyProgress;
         private List<ParticipantDto> participants;
     }
 
@@ -44,6 +46,15 @@ public class CapsuleDetailResponseDto {
     public static class OpenedCapsuleDetailDto {
         private CapsuleInfoDto.OpenedCapsuleDto capsuleInfo;
         private List<ParticipantDto> participants;
+        private ReadyProgressDto readyProgress;
         private List<ConditionSummaryDto> conditions;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ReadyProgressDto {
+        private int readyCount;
+        private int totalCount;
     }
 }

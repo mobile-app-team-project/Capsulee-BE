@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class ParticipantDto {
     private Long userId;
     private String userName;
+    private String status;  // Waiting || Ready
 }
