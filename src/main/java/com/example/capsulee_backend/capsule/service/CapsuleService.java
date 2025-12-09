@@ -39,6 +39,9 @@ public class CapsuleService {
             DateTimeFormatter.ofPattern("yyyy-MM-dd 'at' HH:mm");
     private final S3Uploader s3Uploader;
 
+    private static final DateTimeFormatter CAPSULE_LIST_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm a", Locale.ENGLISH);
+
     @Transactional
     public CreateCapsuleResponseDto createCapsule(CreateCapsuleRequestDto request, String loginID, MultipartFile imageFile) {
         /*
@@ -170,10 +173,13 @@ public class CapsuleService {
             String fromOrTo = calculateFromOrTo(capsule, type);
             List<ConditionSummaryDto> conditions = calculateConditionSummary(currentUser, capsule);
 
+            String formattedOpenDate = capsule.getOpenTime().format(CAPSULE_LIST_FORMATTER);
+
             CapsuleSummaryDto summaryDto = new CapsuleSummaryDto(
                     capsule.getId(),
                     capsule.getTitle(),
                     fromOrTo,
+                    formattedOpenDate,
                     capsule.isOpened(),
                     conditions
             );

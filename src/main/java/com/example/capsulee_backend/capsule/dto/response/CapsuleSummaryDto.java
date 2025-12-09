@@ -15,6 +15,7 @@ public class CapsuleSummaryDto {
     private Long capsuleId;
     private String title;
     private String fromOrTo;
+    private String openDateFormatted;
     private boolean opened;
     private List<ConditionSummaryDto> conditionSummaries;
 }
