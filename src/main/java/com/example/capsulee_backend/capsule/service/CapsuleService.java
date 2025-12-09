@@ -173,13 +173,12 @@ public class CapsuleService {
             String fromOrTo = calculateFromOrTo(capsule, type);
             List<ConditionSummaryDto> conditions = calculateConditionSummary(currentUser, capsule);
 
-            String formattedOpenDate = capsule.getOpenTime().format(CAPSULE_LIST_FORMATTER);
+
 
             CapsuleSummaryDto summaryDto = new CapsuleSummaryDto(
                     capsule.getId(),
                     capsule.getTitle(),
                     fromOrTo,
-                    formattedOpenDate,
                     capsule.isOpened(),
                     conditions
             );
@@ -218,25 +217,23 @@ public class CapsuleService {
     }
 
     private List<ConditionSummaryDto> calculateConditionSummary(User recipient, Capsule capsule) {
-        List<ConditionSummaryDto> conditions = new ArrayList<>();
+        List<ConditionSummaryDto> summaries = new ArrayList<>();
 
-        // 수신자
-//        String recipients = capsule.getReceptions().stream()
-//                .map(r -> r.getRecipient().getUsername())
-//                .collect(Collectors.joining(", "));
-//        conditions.add(new ConditionSummaryDto("RECIPIENTS", recipients));
+        // 1. TIME 조건 추가 (openTime 기준)
+        String formattedOpenDate = capsule.getOpenTime().format(CAPSULE_LIST_FORMATTER);
+        summaries.add(new ConditionSummaryDto("TIME", formattedOpenDate));
 
+        // 2. 나머지 조건은 recipientConditions에서 조회
         List<RecipientConditions> recipientConditions = recipientConditionsRepository
                 .findAllByRecipientAndCondition_Capsule(recipient, capsule);
 
-        // 나머지 조건들 (LOCATION, WEATHER, ACTION)
-        return recipientConditions.stream()
-                .map(rc -> new ConditionSummaryDto(
-                        rc.getCondition().getType().name(),   // "WEATHER", "LOCATION", "ACTION"
-                        rc.getCondition().getValue(),         // "SNOW", "37.123, 127.456"
-                        rc.isAccepted()                       // ✔️ matched 여부
-                ))
-                .collect(Collectors.toList());
+        for (RecipientConditions rc : recipientConditions) {
+            String type = rc.getCondition().getType().name();   // 예: "LOCATION", "WEATHER", "ACTION"
+            String value = rc.getCondition().getValue();
+            summaries.add(new ConditionSummaryDto(type, value, rc.isAccepted()));
+        }
+
+        return summaries;
     }
 
     @Transactional
