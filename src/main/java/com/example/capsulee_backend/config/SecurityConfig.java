@@ -25,7 +25,9 @@ public class SecurityConfig {
                                 "/auth/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                "http://10.0.2.2:8080",
+                                "http://localhost:3000"
                         ).permitAll()
                         .anyRequest().authenticated()
                 );

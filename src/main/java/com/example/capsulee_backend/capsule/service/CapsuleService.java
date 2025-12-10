@@ -137,6 +137,21 @@ public class CapsuleService {
         );
     }
 
+    /**
+     * 조건이 없고 openTime이 지났다면 자동으로 캡슐을 OPENED 상태로 변경
+     */
+    @Transactional
+    public void autoOpenCapsuleIfNeeded(Capsule capsule) {
+        boolean hasNoConditions = capsule.getCondition().isEmpty();
+        boolean isPastOpenTime = capsule.getOpenTime().isBefore(LocalDateTime.now());
+        boolean isOpened = capsule.isOpened();
+
+        if (hasNoConditions && isPastOpenTime && !isOpened) {
+            capsule.setOpened(true);
+            capsuleRepository.save(capsule);
+        }
+    }
+
     @Transactional
     public CapsuleListResponseDto getCapsules(String loginID, String type) {
         User currentUser = userRepository.findByLoginID(loginID)
@@ -170,16 +185,16 @@ public class CapsuleService {
         List<CapsuleSummaryDto> capsuleSummaries = new ArrayList<>();
 
         for (Capsule capsule : listCapsules) {
+            autoOpenCapsuleIfNeeded(capsule);
+
             String fromOrTo = calculateFromOrTo(capsule, type);
             List<ConditionSummaryDto> conditions = calculateConditionSummary(currentUser, capsule);
-
-
 
             CapsuleSummaryDto summaryDto = new CapsuleSummaryDto(
                     capsule.getId(),
                     capsule.getTitle(),
                     fromOrTo,
-                    capsule.isOpened(),
+                    capsule.isOpened(), // 자동 OPEN 처리 후 값 반영
                     conditions
             );
             capsuleSummaries.add(summaryDto);
@@ -261,6 +276,9 @@ public class CapsuleService {
         boolean isUserReady = isUserReady(user, capsule);
         boolean isOpened = capsule.isOpened();
 
+        autoOpenCapsuleIfNeeded(capsule);
+        isOpened = capsule.isOpened();
+
         // 1. openTime 이전 -> LOCKED
         if (isBeforeOpen) {
             CapsuleDetailResponseDto.LockedCapsuleDetailDto lockedDetail =
@@ -280,6 +298,28 @@ public class CapsuleService {
                     lockedDetail
             );
         }
+
+//        if (capsule.getCondition().isEmpty() && capsule.getOpenTime().isBefore(LocalDateTime.now())) {
+//            capsule.setOpened(true);
+//            capsuleRepository.save(capsule); // DB 반영
+//
+//            CapsuleDetailResponseDto.ReadyProgressDto progress = calculateReadyProgress(capsule);
+//            CapsuleDetailResponseDto.OpenedCapsuleDetailDto openedDetail =
+//                    new CapsuleDetailResponseDto.OpenedCapsuleDetailDto(
+//                            new CapsuleInfoDto.OpenedCapsuleDto(
+//                                    capsule.getId(),
+//                                    capsule.getTitle(),
+//                                    capsule.getCreator().getUsername(),
+//                                    capsule.getOpenTime().format(CAPSULE_DATE_FORMATTER),
+//                                    capsule.getContent(),
+//                                    capsule.getImageURL()
+//                            ),
+//                            getParticipant(capsule),
+//                            progress,
+//                            calculateConditionSummary(user, capsule)
+//                    );
+//            return new CapsuleDetailResponseDto("OPENED", openedDetail);
+//        }
 
         // 2. 오픈 당일이거나 오픈날이 지났는데 사용자가 Ready 버튼을 아직 누르지 않았을 때 -> WAITING
         if ((isTodayOpen || isAfterOpen) && !isUserReady && !isOpened) {
