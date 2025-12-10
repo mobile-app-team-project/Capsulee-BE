@@ -36,6 +36,7 @@ public class CapsuleInfoDto {
             String title,
             String from,
             String openTime,
-            String content
+            String content,
+            String imageUrl
     ) {}
 }

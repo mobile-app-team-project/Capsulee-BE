@@ -329,7 +329,8 @@ public class CapsuleService {
                                 capsule.getTitle(),
                                 capsule.getCreator().getUsername(),
                                 capsule.getOpenTime().format(CAPSULE_DATE_FORMATTER),
-                                capsule.getContent()
+                                capsule.getContent(),
+                                capsule.getImageURL()
                         ),
                         getParticipant(capsule),
                         progress,
